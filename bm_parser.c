@@ -209,53 +209,42 @@ bool load_map(const char *filename, Map *map){
 
 }
 
+
 int main(void) {
-    FILE *fp = fopen("maps/large_map", "rb"); // rb allows us to read binary
+    Map map = {0};
 
-    if (fp == NULL) {//make sure pointer is not null
-        perror("Error opening map file");
+    if (!load_map("maps/large_map", &map)) {
+        fprintf(stderr, "Failed to load map\n");
         return 1;
     }
 
-    // Read timestamp
-    uint64_t timestamp; // init timestamp var
+    printf("Map loaded successfully!\n");
+    printf("Timestamp: %lld\n", (long long)map.timestamp);
+    printf("Total nodes: %zu\n", map.count);
+    printf("Node array capacity: %zu\n", map.capacity);
 
-    if (!read_u64_be(fp, &timestamp)) {
-        fprintf(stderr, "Error reading map timestamp\n");
-        fclose(fp);
-        return 1;
+    // Print the first five nodes.
+    size_t nodes_to_print = map.count < 5 ? map.count : 5;
+
+    for (size_t i = 0; i < nodes_to_print; i++) {
+        Node *node = &map.nodes[i];
+
+        printf("\nNode ID: %u\n", (unsigned)node->id);
+        printf("Name: %s\n", node->name);
+        printf("Number of links: %zu\n", node->links.count);
+
+        for (size_t j = 0; j < node->links.count; j++) {
+            Link *link = &node->links.links[j];
+
+            printf("  Link %zu: weight=%u, destination=%u\n",
+                   j,
+                   (unsigned)link->weight,
+                   (unsigned)link->destination_id);
+        }
     }
 
-    printf("Map timestamp: %llu\n",
-           (unsigned long long)timestamp);
-    
-    // lets read in the first node now
-    Node node = {0};
-
-    NodeReadResult result = read_node(fp, &node);
-
-    if (result != NODE_READ_OK) {
-        fprintf(stderr, "Error reading first node\n");
-        free_node(&node);
-        fclose(fp);
-        return 1;
-    }
-    // Print the node information.
-    printf("Node ID: %u\n", (unsigned)node.id);
-    printf("Node name: %s\n", node.name);
-    printf("Number of links: %zu\n", node.links.count);
-
-    // Print each link.
-    for (size_t i = 0; i < node.links.count; i++) {
-        printf("Link %zu: weight=%u, destination=%u\n",
-               i,
-               (unsigned)node.links.links[i].weight,
-               (unsigned)node.links.links[i].destination_id);
-    }
-
-    // Clean up.
-    free_node(&node);
-    fclose(fp);
+    free_map(&map);
 
     return 0;
 }
+
