@@ -7,8 +7,8 @@ CFLAGS = -Wall -Wextra -Wpedantic -std=c11 -g
 all: parser_test
 
 # Compile the binary map parser.
-parser_test: bm_parser.c bm_parser.h
-	$(CC) $(CFLAGS) bm_parser.c -o parser_test
+parser_test: bm_parser.c graph.c bm_parser.h graph.h
+	$(CC) $(CFLAGS) bm_parser.c graph.c -o parser_test
 
 # Build and execute the parser test.
 test: parser_test

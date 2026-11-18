@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "graph.h"
 
 
 //helper functions
@@ -223,7 +224,20 @@ int main(void) {
     printf("Total nodes: %zu\n", map.count);
     printf("Node array capacity: %zu\n", map.capacity);
 
-    // Print the first five nodes.
+   Node *earth = find_node(&map, 1);
+
+    if (earth != NULL) {
+        printf("Found node: %s (ID: %u)\n",
+            earth->name,
+            (unsigned)earth->id);
+    }
+
+    Node *missing = find_node(&map, 999);
+
+    if (missing == NULL) {
+        printf("Correctly handled missing node\n");
+    }
+        // Print the first five nodes.
     size_t nodes_to_print = map.count < 5 ? map.count : 5;
 
     for (size_t i = 0; i < nodes_to_print; i++) {
