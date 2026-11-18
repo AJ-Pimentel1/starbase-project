@@ -224,8 +224,8 @@ int main(void) {
     printf("Total nodes: %zu\n", map.count);
     printf("Node array capacity: %zu\n", map.capacity);
 
+    // here we validate our node search function
    Node *earth = find_node(&map, 1);
-
     if (earth != NULL) {
         printf("Found node: %s (ID: %u)\n",
             earth->name,
@@ -237,7 +237,22 @@ int main(void) {
     if (missing == NULL) {
         printf("Correctly handled missing node\n");
     }
-        // Print the first five nodes.
+
+    // here we validate that all Node id's are unique
+    if (validate_unique_ids(&map)) {
+        printf("All node IDs are unique.\n");
+    } else {
+        printf("Duplicate node IDs found!\n");
+    }
+
+    // now we verify that each destination id actually exists. 
+    if (validate_links(&map)) {
+        printf("All links point to existing nodes.\n");
+    } else {
+        printf("Invalid links found!\n");
+}
+    // now we can print some node information. 
+    // Print the first five nodes.
     size_t nodes_to_print = map.count < 5 ? map.count : 5;
 
     for (size_t i = 0; i < nodes_to_print; i++) {
