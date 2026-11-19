@@ -35,6 +35,12 @@ void relax_edges(Map *map, PathInfo *paths, PathInfo *current);
 
 PathInfo *dijkstra(Map *map, uint16_t start_id);
 
+
+// graph operations defined by specification. 
+void list_locations(Map *map);
+
+void search_locations(Map *map, const char *search_term);
+
 #endif
 
 

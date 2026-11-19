@@ -1,5 +1,7 @@
 #include "graph.h"
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 // this file is responsible for handling graph operations. Namely, validating that no two nodes share the same id, and that all links are valid. 
 // we also implement Dijkstra's algorithm here. 
@@ -199,6 +201,7 @@ uint16_t *reconstruct_path(
     PathInfo *destination = NULL;
 
     for (size_t i = 0; i < count; i++) {
+        // find where the destination id is stored in paths. 
         if (paths[i].node_id == destination_id) {
             destination = &paths[i];
             break;
@@ -260,6 +263,89 @@ uint16_t *reconstruct_path(
     }
 
     return path;
+}
+
+void list_locations(Map *map) {
+    // for all locations
+    for (size_t i = 0; i < map->count; i++) {
+        //print node name
+        printf("%s\n", map->nodes[i].name);
+    }
+}
+// searches for a "needle" (search term) in the "haystack" (main string)
+void search_locations(Map *map, const char *search_term) {
+    //for all locations in map
+    for (size_t i = 0; i < map->count; i++) {
+        // if the search returns something that is not null, return the haystack
+        if (strstr(map->nodes[i].name, search_term) != NULL) {
+            printf("%s\n", map->nodes[i].name);
+        }
+    }
+}
+// slightly different implementation from find_node() which returns a pointer to a requested node from the id
+// whereas this  function seeks to return a pointer to the requested node from the name of the node itself. 
+Node *find_node_by_name(Map *map, const char *name) {
+    for (size_t i = 0; i < map->count; i++) {
+        // we use strcmp because this checks whether the entire strings are identical compared to 
+        // strstr which just returns a partial match
+        if (strcmp(map->nodes[i].name, name) == 0) {
+            // return pointer to the requested node
+            return &map->nodes[i];
+        }
+    }
+
+    return NULL;
+}
+
+// now we can connect the pieces to our dijkstra implementation. 
+void print_route(Map *map, const char *source, const char *destination) {
+    // we first get pointers to the starting and destination nodes
+    Node *start = find_node_by_name(map, source);
+    Node *end = find_node_by_name(map, destination);
+    // if either pointers are null we print an error. 
+    if (start == NULL || end == NULL) {
+        printf("Error: source or destination not found.\n");
+        return;
+    }
+    // now we run dijkstra's to get a pointer to path info struct which contains all optimal paths. 
+    PathInfo *paths = dijkstra(map, start->id);
+    // if paths are null we return;
+    if (paths == NULL) {
+        printf("Error: could not calculate route.\n");
+        return;
+    }
+    // init a path length 
+    size_t path_length = 0;
+    // reconstruct the path from our reconstruct_path function. 
+    uint16_t *path = reconstruct_path(
+        paths,
+        map->count,
+        start->id,
+        end->id,
+        &path_length
+    );
+
+    if (path == NULL) {
+        printf("No route exists between %s and %s.\n", source, destination);
+        free(paths);
+        return;
+    }
+
+    printf("Route: ");
+
+    for (size_t i = 0; i < path_length; i++) {
+        Node *node = find_node(map, path[i]);
+        printf("%s", node->name);
+
+        if (i < path_length - 1) {
+            printf(" -> ");
+        }
+    }
+
+    printf("\nTotal distance: %u light years\n", paths[end - map->nodes].distance);
+
+    free(path);
+    free(paths);
 }
 
 

@@ -308,6 +308,13 @@ int main(void) {
 
     free(paths);
 
+    printf("\nTesting the list locations function... Here are all locations:\n");
+    list_locations(&map);
+
+    printf("\nTesting the serach_location function with 'Rem'... Here are the search results:\n");
+    search_locations(&map, "Rem");
+
+
 
     // now we can print some node information. 
     // Print the first five nodes.
