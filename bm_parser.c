@@ -250,7 +250,65 @@ int main(void) {
         printf("All links point to existing nodes.\n");
     } else {
         printf("Invalid links found!\n");
-}
+    }
+
+    //now lets test our dijkstra's algorithm 
+    PathInfo *paths = dijkstra(&map, 1);
+
+    if (paths == NULL) {
+        printf("Dijkstra failed.\n");
+        free_map(&map);
+        return 1;
+    }
+
+    printf("\nShortest distances from Earth:\n");
+
+    for (size_t i = 0; i < map.count; i++) {
+        printf("Node %u: ",
+            (unsigned)paths[i].node_id);
+
+        if (paths[i].distance == INF) {
+            printf("Unreachable\n");
+        } else {
+            printf("Distance = %u\n",
+                (unsigned)paths[i].distance);
+        }
+    }
+
+    // now lets test the shortest route reconstruction 
+    size_t path_length = 0;
+
+    uint16_t *path = reconstruct_path(
+        paths,
+        map.count,
+        1,
+        4,
+        &path_length
+    );
+
+    if (path == NULL) {
+        printf("No route found.\n");
+    } else {
+        printf("\nShortest route from Earth to Risa:\n");
+
+        for (size_t i = 0; i < path_length; i++) {
+            Node *node = find_node(&map, path[i]);
+
+            printf("%s", node->name);
+
+            if (i < path_length - 1) {
+                printf(" -> ");
+            }
+        }
+
+        printf("\n");
+
+        free(path);
+    }
+
+    free(paths);
+
+
     // now we can print some node information. 
     // Print the first five nodes.
     size_t nodes_to_print = map.count < 5 ? map.count : 5;
